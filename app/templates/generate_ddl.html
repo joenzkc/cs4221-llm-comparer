@@ -46,7 +46,7 @@
             e.preventDefault();
             let requirements = document.getElementById('requirements').value;
             console.log(requirements);
-            let dlls = await fetch('/generate_dll', {
+            let dlls = await fetch('/generate_ddl', {
                 method: 'POST',
                 body: JSON.stringify({
                     'requirements': requirements

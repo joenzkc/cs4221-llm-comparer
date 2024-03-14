@@ -25,7 +25,7 @@ def generate_response(user_input):
 
     return f' \n Claude response: {claude_result}'
 
-@app.route('/generate_dll', methods=['GET', 'POST'])
+@app.route('/generate_ddl', methods=['GET', 'POST'])
 def generate_dll_page():
     if request.method == 'POST':
         user_input = request.json.get('requirements')
@@ -35,4 +35,4 @@ def generate_dll_page():
             'openai': result,
             'claude': ''
         })
-    return render_template('generate_dll.html')
+    return render_template('generate_ddl.html')
