@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request
 from app.db import get
 from app.llms.openai import generate_ai_response
+from app.llms.claude import generate_claude_response
 
 app = Flask(__name__)
 
@@ -15,7 +16,11 @@ def index():
 def generate_response(user_input):
     # Your logic to generate a response based on user_input
     # run sql query
-    result = generate_ai_response(user_input)
+    # gpt response
+    # result = generate_ai_response(user_input)
+
+    # clause response
+    claude_result = generate_claude_response(user_input)
 
 
-    return f'{result}'
+    return f' \n Claude response: {claude_result}'
