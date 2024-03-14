@@ -17,4 +17,4 @@ def generate_response(user_input):
     result = get(user_input)
 
 
-    return f'Result: {result}'
+    return f'{result}'

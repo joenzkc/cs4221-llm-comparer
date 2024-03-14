@@ -16,16 +16,24 @@ def close_connection(connection):
 def get(sql):
     connection = get_connection()
     cursor = connection.cursor()
-    cursor.execute(sql)
-    result = cursor.fetchall()
-    cursor.close()
-    close_connection(connection)
+    try:
+        cursor.execute(sql)
+        result = cursor.fetchall()
+    except psycopg2.Error as e:
+        result = 'Error: ' + str(e)
+    finally:
+        cursor.close()
+        close_connection(connection)
     return result
 
 def insert(sql):
     connection = get_connection()
     cursor = connection.cursor()
-    cursor.execute(sql)
-    connection.commit()
-    cursor.close()
-    close_connection(connection)
+    try:
+        cursor.execute(sql)
+        connection.commit()
+    except Exception as e:
+        raise e
+    finally:
+        cursor.close()
+        close_connection(connection)
