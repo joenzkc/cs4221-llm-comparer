@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request
 from app.db import get
+from app.llms.openai import generate_ai_response
 
 app = Flask(__name__)
 
@@ -14,7 +15,7 @@ def index():
 def generate_response(user_input):
     # Your logic to generate a response based on user_input
     # run sql query
-    result = get(user_input)
+    result = generate_ai_response(user_input)
 
 
     return f'{result}'
