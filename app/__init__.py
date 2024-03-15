@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from app.db import get
 from app.llms.openai import generate_ai_response
 from app.llms.claude import generate_claude_response
@@ -24,3 +24,15 @@ def generate_response(user_input):
 
 
     return f' \n Claude response: {claude_result}'
+
+@app.route('/generate_ddl', methods=['GET', 'POST'])
+def generate_dll_page():
+    if request.method == 'POST':
+        user_input = request.json.get('requirements')
+
+        result = generate_ai_response(user_input)
+        return jsonify({
+            'openai': result,
+            'claude': ''
+        })
+    return render_template('generate_ddl.html')
