@@ -29,7 +29,11 @@ async function handleSubmit(e) {
         headers: {
             'Content-type': 'application/json'
         }
-    }).then(data => data.json());
+    }).then(data => data.json())
+    .catch(error => {
+        console.log(error);
+        loading.classList.add('d-none');
+    });
     
     let {openai, claude} = dlls;
 
@@ -43,7 +47,7 @@ async function handleSubmit(e) {
 
     document.getElementById('resultDiv').classList.remove('d-none');
     hljs.highlightAll();
-    
+
     loading.classList.add('d-none');
 }
 
