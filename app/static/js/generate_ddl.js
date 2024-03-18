@@ -13,6 +13,9 @@ function cleanResponse(string) {
 
 async function handleSubmit(e) {
     e.preventDefault();
+    let loading = document.getElementById('loading');
+    loading.classList.remove('d-none');
+
     let requirements = document.getElementById('requirements').value;
     let content_prompt = document.getElementById('contentPrompt').value;
 
@@ -26,7 +29,11 @@ async function handleSubmit(e) {
         headers: {
             'Content-type': 'application/json'
         }
-    }).then(data => data.json());
+    }).then(data => data.json())
+    .catch(error => {
+        console.log(error);
+        loading.classList.add('d-none');
+    });
     
     let {openai, claude} = dlls;
 
@@ -40,6 +47,8 @@ async function handleSubmit(e) {
 
     document.getElementById('resultDiv').classList.remove('d-none');
     hljs.highlightAll();
+
+    loading.classList.add('d-none');
 }
 
 async function copySQL(e) {

@@ -1,17 +1,19 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>CS4221</title>
-  </head>
-  <body>
-    <form method="post">
-      <input
-        type="text"
-        name="message"
-        placeholder="Type your SQL Query here"
-      />
-      <button type="submit">Send</button>
-    </form>
-    <p>Result: {{ response }}</p>
-  </body>
-</html>
+{% extends "base.html" %}
+
+{% block title%}CS4221 / CS5421{% endblock %}
+
+{% block body%}
+
+<div class="container mt-2">
+  <form method="post">
+    <textarea 
+      class="form-control" 
+      placeholder="Type your SQL Query here" 
+      id="message"
+      name="message"></textarea>
+    <button type="submit" class="btn btn-primary">Send</button>
+  </form>
+  <hr />
+  <p>Result: {{ response }}</p>
+</div>
+{% endblock %}
