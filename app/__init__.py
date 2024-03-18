@@ -29,10 +29,13 @@ def generate_response(user_input):
 def generate_dll_page():
     if request.method == 'POST':
         user_input = request.json.get('requirements')
+        content_prompt = request.json.get('content_prompt', '')
 
-        result = generate_ai_response(user_input)
+        print(user_input, content_prompt)
+        openai = generate_ai_response(user_input, content_prompt)
+        claude = generate_claude_response(user_input, content_prompt)
         return jsonify({
-            'openai': result,
-            'claude': ''
+            'openai': openai,
+            'claude': claude
         })
     return render_template('generate_ddl.html')
