@@ -13,6 +13,9 @@ function cleanResponse(string) {
 
 async function handleSubmit(e) {
     e.preventDefault();
+    let loading = document.getElementById('loading');
+    loading.classList.remove('d-none');
+
     let requirements = document.getElementById('requirements').value;
     let content_prompt = document.getElementById('contentPrompt').value;
 
@@ -40,6 +43,8 @@ async function handleSubmit(e) {
 
     document.getElementById('resultDiv').classList.remove('d-none');
     hljs.highlightAll();
+    
+    loading.classList.add('d-none');
 }
 
 async function copySQL(e) {
