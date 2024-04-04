@@ -1,3 +1,5 @@
+const AVAILABLE_MODELS = ['openai', 'claude']
+
 window.addEventListener('load', () => {
     hljs.highlightAll();
 })
@@ -16,34 +18,36 @@ async function handleSubmit(e) {
     let loading = document.getElementById('loading');
     loading.classList.remove('d-none');
 
-    let requirements = document.getElementById('requirements').value;
+    let prompt = document.getElementById('requirements').value;
     let content_prompt = document.getElementById('contentPrompt').value;
 
     console.log(requirements, content_prompt);
-    let dlls = await fetch('/generate_ddl', {
-        method: 'POST',
-        body: JSON.stringify({
-            requirements,
-            content_prompt
-        }),
-        headers: {
-            'Content-type': 'application/json'
-        }
-    }).then(data => data.json())
-    .catch(error => {
-        console.log(error);
-        loading.classList.add('d-none');
-    });
-    
-    let {openai, claude} = dlls;
-
-    let openaiResp = document.getElementById('openaiResponse');
-    openaiResp.removeAttribute('data-highlighted');
-    openaiResp.textContent = cleanResponse(openai);
-
-    let claudeResp = document.getElementById('claudeResponse');
-    claudeResp.removeAttribute('data-highlighted');
-    claudeResp.textContent = cleanResponse(claude);
+    for (const model of AVAILABLE_MODELS) {
+        let dlls = fetch('/response', {
+            method: 'POST',
+            body: JSON.stringify({
+                model,
+                prompt,
+                content_prompt
+            }),
+            headers: {
+                'Content-type': 'application/json'
+            }
+        }).then(d => d.json())
+          .then(response => {
+            if (response.success === false) {
+                console.log('Error: ', response.message)
+            }
+            console.log(response);
+            let respCode = document.getElementById(`${model}Response`);
+            respCode.removeAttribute('data-highlighted');
+            respCode.textContent = cleanResponse(response.message);
+        })
+        .catch(error => {
+            console.log(error);
+            loading.classList.add('d-none');
+        });
+    }
 
     document.getElementById('resultDiv').classList.remove('d-none');
     hljs.highlightAll();

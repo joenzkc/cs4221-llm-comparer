@@ -1,15 +1,18 @@
-from flask import Flask, render_template, request, jsonify
+import os
+from flask import Flask, current_app, render_template, request, jsonify, Blueprint
+from dotenv import load_dotenv
 from app.db import get
-from app.llms.openai import generate_ai_response
-from app.llms.claude import generate_claude_response
+from app.llms.claude import ClaudeClient
+from app.llms.openai import OpenAIClient
+from app.llms.BaseLLM import BaseLLM
 
-app = Flask(__name__)
+main = Blueprint('main', __name__)
 
-@app.route('/', methods=['GET', 'POST'])
+@main.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
         user_input = request.form['message']
-        response = generate_response(user_input)
+        response = current_app.claude.generate_response(user_input)
         return render_template('index.html', response=response)
     return render_template('index.html', response='')
 
@@ -20,22 +23,48 @@ def generate_response(user_input):
     # result = generate_ai_response(user_input)
 
     # clause response
-    claude_result = generate_claude_response(user_input)
+    claude_result = current_app.claude.generate_response(user_input, None)
+    
+    return f'\nClaude response: {claude_result}'
 
+@main.route('/compare_llms', methods=['GET', 'POST'])
+def compare_llms():
+    return render_template('compare_llms.html')
 
-    return f' \n Claude response: {claude_result}'
+@main.route('/response', methods=['POST'])
+def generate_response():
+    model = request.json.get('model', '')
+    prompt = request.json.get('prompt', '')
+    content_prompt = request.json.get('content_prompt', '')
+    kwargs = request.json.get('args', {})
 
-@app.route('/generate_ddl', methods=['GET', 'POST'])
-def generate_dll_page():
-    if request.method == 'POST':
-        user_input = request.json.get('requirements')
-        content_prompt = request.json.get('content_prompt', '')
+    client: BaseLLM = None
+    if not model:
+        return jsonify({'success': False, 'message': 'No model provided'})
+    elif not (client := getattr(current_app, model)):
+        return jsonify({'success': False, 'message': 'Model not valid'})
+    elif not prompt:
+        return jsonify({'success': False, 'message': 'Prompt must be provided'})
+    
+    return jsonify({
+        'success': True,
+        'message': client.generate_response(prompt, content_prompt, **kwargs)
+    })
 
-        print(user_input, content_prompt)
-        openai = generate_ai_response(user_input, content_prompt)
-        claude = generate_claude_response(user_input, content_prompt)
-        return jsonify({
-            'openai': openai,
-            'claude': claude
-        })
-    return render_template('generate_ddl.html')
+def create_app():
+    app = Flask(__name__)
+    app.register_blueprint(main)
+
+    load_dotenv()
+    required_env_vars = ['CLAUDE_API_KEY', 'OPENAI_API_KEY']
+    for var in required_env_vars:
+        env_var = os.environ.get(var)
+        if not env_var:
+            raise Exception(f"Missing env variable: {var}")
+        app.config[var] = env_var
+
+    with app.app_context():
+        current_app.claude = ClaudeClient(app.config['CLAUDE_API_KEY'])
+        current_app.openai = OpenAIClient(app.config['OPENAI_API_KEY'])
+    
+    return app
